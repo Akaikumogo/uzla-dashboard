@@ -28,7 +28,7 @@ const navItems = [
   },
   {
     path: '/dashboard/teachers',
-    label: { uz: 'UstUzlar', en: 'Teachers', ru: 'Преподаватели' },
+    label: { uz: 'Ustozlar', en: 'Teachers', ru: 'Преподаватели' },
     icon: UsersRound
   },
   {
