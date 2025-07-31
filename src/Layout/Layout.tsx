@@ -28,7 +28,7 @@ const navItems = [
   },
   {
     path: '/dashboard/teachers',
-    label: { uz: 'Ustozlar', en: 'Teachers', ru: 'Преподаватели' },
+    label: { uz: 'UstUzlar', en: 'Teachers', ru: 'Преподаватели' },
     icon: UsersRound
   },
   {
@@ -56,8 +56,8 @@ const Layout = () => {
   const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
   const getCurrentPageTitle = () => {
-    const currentItem = navItems.find(
-      (item) => location.pathname.includes(item.path)
+    const currentItem = navItems.find((item) =>
+      location.pathname.includes(item.path)
     );
     return currentItem?.label ?? { uz: 'Bosh sahifa', en: 'Home', ru: ' ' };
   };
@@ -120,7 +120,7 @@ const Layout = () => {
                             className="flex flex-col overflow-auto"
                           >
                             <h1 className="min-w-[200px] font-bold text-lg text-slate-900 dark:text-white">
-                              Ozla
+                              Uzla
                             </h1>
                             <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                               {t({

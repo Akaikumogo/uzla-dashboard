@@ -33,7 +33,7 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
             animate={{ y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            {t({ en: 'Ozla ', uz: 'Ozla ', ru: 'Ozla ' })}
+            {t({ en: 'Uzla ', uz: 'Uzla ', ru: 'Uzla ' })}
           </motion.h1>{' '}
           <motion.h1
             className="text-3xl md:text-5xl font-semibold"
@@ -43,8 +43,8 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
           >
             {t({
               uz: " bilan o'rganing",
-              ru: ' учитесь с Ozla',
-              en: ' learn with Ozla'
+              ru: ' учитесь с Uzla',
+              en: ' learn with Uzla'
             })}
           </motion.h1>
         </div>
