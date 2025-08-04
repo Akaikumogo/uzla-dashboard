@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Row,
   Col,
@@ -16,19 +17,21 @@ import {
   Empty
 } from 'antd';
 import {
-  Users,
-  BookOpen,
-  CheckCircle,
-  XCircle,
-  Clock,
-  TrendingUp,
-  FileText,
-  User,
-  GraduationCap,
-  AlertCircle,
-  Plus,
-  MessageSquare
-} from 'lucide-react';
+  TeamOutlined,
+  BookOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  ClockCircleOutlined,
+  TrophyOutlined,
+  FileTextOutlined,
+  UserOutlined,
+  ExperimentOutlined,
+  ExclamationCircleOutlined,
+  PlusOutlined,
+  MessageOutlined,
+  BugOutlined,
+  EyeOutlined
+} from '@ant-design/icons';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -40,7 +43,7 @@ import {
   Legend,
   ArcElement
 } from 'chart.js';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType } from 'antd/es/table'; // Import ColumnsType
 
 // Register Chart.js components
 ChartJS.register(
@@ -90,30 +93,7 @@ export type RecentActivityDto = {
   studentName?: string;
 };
 
-// SCENARIO 1: O'qituvchi faqat sinfga ega (savollar yo'q)
-// const teacherWithClassOnly: TeacherDto = {
-//   id: 'teacher-bio-001',
-//   fullName: 'Dr. Malika Tosheva',
-//   subject: 'Biologiya',
-//   subjectId: '4',
-//   assignedClass: {
-//     id: 'class-002',
-//     name: '10-B sinf',
-//     grade: 10,
-//     studentsCount: 25
-//   }
-// };
-
-// SCENARIO 2: O'qituvchi faqat savollarga ega (sinf yo'q)
-// const teacherWithQuestionsOnly: TeacherDto = {
-//   id: 'teacher-bio-002',
-//   fullName: 'Dr. Aziza Rahimova',
-//   subject: 'Biologiya',
-//   subjectId: '4'
-//   // assignedClass: undefined
-// };
-
-// SCENARIO 3: O'qituvchi ham sinfga ham savollarga ega
+// Biology teacher with both class and questions
 const teacherWithBoth: TeacherDto = {
   id: 'teacher-bio-003',
   fullName: 'Dr. Nodira Karimova',
@@ -127,55 +107,46 @@ const teacherWithBoth: TeacherDto = {
   }
 };
 
-// Current teacher - bu yerda scenario'ni o'zgartirib test qilish mumkin
-const currentTeacher = teacherWithBoth; // teacherWithClassOnly, teacherWithQuestionsOnly, teacherWithBoth
+// Current teacher
+const currentTeacher = teacherWithBoth;
 
-// Mock subjects
-// const mockSubjects = [
-//   { id: '1', name: 'Matematika' },
-//   { id: '2', name: 'Fizika' },
-//   { id: '3', name: 'Kimyo' },
-//   { id: '4', name: 'Biologiya' },
-//   { id: '5', name: 'Tarix' }
-// ];
-
-// Mock question statistics - bu yerda currentTeacher ga qarab o'zgaradi
-const generateQuestionStats = (teacher: TeacherDto): QuestionStatsDto[] => {
-  // Agar o'qituvchi faqat sinfga ega bo'lsa, savollar yo'q
+// Biology-specific question statistics
+const generateBiologyQuestionStats = (
+  teacher: TeacherDto
+): QuestionStatsDto[] => {
   if (teacher.id === 'teacher-bio-001') {
     return [];
   }
 
-  // Agar o'qituvchi faqat savollarga ega bo'lsa yoki ikkalasiga ham ega bo'lsa
   return [
     {
       level: 1,
       subjects: [
         {
           subjectId: '4',
-          subjectName: 'Biologiya',
-          count: 15,
-          answeredCount: 12,
+          subjectName: 'Hujayra biologiyasi',
+          count: 18,
+          answeredCount: 15,
           pendingCount: 3,
-          acceptedCount: 8,
+          acceptedCount: 12,
           rejectedCount: 1
         },
         {
-          subjectId: '3',
-          subjectName: 'Kimyo',
+          subjectId: '4-1',
+          subjectName: 'Organizmlar xilma-xilligi',
+          count: 12,
+          answeredCount: 10,
+          pendingCount: 2,
+          acceptedCount: 8,
+          rejectedCount: 0
+        },
+        {
+          subjectId: '4-2',
+          subjectName: 'Fiziologiya asoslari',
           count: 8,
           answeredCount: 6,
           pendingCount: 2,
           acceptedCount: 4,
-          rejectedCount: 0
-        },
-        {
-          subjectId: '2',
-          subjectName: 'Fizika',
-          count: 5,
-          answeredCount: 4,
-          pendingCount: 1,
-          acceptedCount: 3,
           rejectedCount: 0
         }
       ]
@@ -185,29 +156,29 @@ const generateQuestionStats = (teacher: TeacherDto): QuestionStatsDto[] => {
       subjects: [
         {
           subjectId: '4',
-          subjectName: 'Biologiya',
-          count: 20,
-          answeredCount: 18,
+          subjectName: 'Genetika va irsiyat',
+          count: 25,
+          answeredCount: 22,
           pendingCount: 5,
-          acceptedCount: 10,
-          rejectedCount: 3
+          acceptedCount: 15,
+          rejectedCount: 2
         },
         {
-          subjectId: '3',
-          subjectName: 'Kimyo',
-          count: 12,
-          answeredCount: 10,
+          subjectId: '4-1',
+          subjectName: 'Evolyutsiya nazariyasi',
+          count: 16,
+          answeredCount: 13,
           pendingCount: 3,
-          acceptedCount: 6,
+          acceptedCount: 9,
           rejectedCount: 1
         },
         {
-          subjectId: '1',
-          subjectName: 'Matematika',
-          count: 6,
-          answeredCount: 5,
-          pendingCount: 1,
-          acceptedCount: 4,
+          subjectId: '4-2',
+          subjectName: 'Ekologiya',
+          count: 10,
+          answeredCount: 8,
+          pendingCount: 2,
+          acceptedCount: 6,
           rejectedCount: 0
         }
       ]
@@ -217,29 +188,29 @@ const generateQuestionStats = (teacher: TeacherDto): QuestionStatsDto[] => {
       subjects: [
         {
           subjectId: '4',
-          subjectName: 'Biologiya',
-          count: 25,
-          answeredCount: 20,
+          subjectName: 'Molekulyar biologiya',
+          count: 30,
+          answeredCount: 25,
           pendingCount: 8,
-          acceptedCount: 10,
+          acceptedCount: 15,
           rejectedCount: 2
         },
         {
-          subjectId: '3',
-          subjectName: 'Kimyo',
-          count: 15,
-          answeredCount: 12,
+          subjectId: '4-1',
+          subjectName: 'Biotexnologiya',
+          count: 20,
+          answeredCount: 16,
           pendingCount: 4,
-          acceptedCount: 7,
+          acceptedCount: 11,
           rejectedCount: 1
         },
         {
-          subjectId: '2',
-          subjectName: 'Fizika',
-          count: 10,
-          answeredCount: 8,
-          pendingCount: 2,
-          acceptedCount: 5,
+          subjectId: '4-2',
+          subjectName: 'Anatomiya va fiziologiya',
+          count: 14,
+          answeredCount: 11,
+          pendingCount: 3,
+          acceptedCount: 7,
           rejectedCount: 1
         }
       ]
@@ -249,29 +220,29 @@ const generateQuestionStats = (teacher: TeacherDto): QuestionStatsDto[] => {
       subjects: [
         {
           subjectId: '4',
-          subjectName: 'Biologiya',
-          count: 18,
-          answeredCount: 15,
+          subjectName: 'Biokimyo',
+          count: 22,
+          answeredCount: 18,
           pendingCount: 6,
+          acceptedCount: 10,
+          rejectedCount: 2
+        },
+        {
+          subjectId: '4-1',
+          subjectName: 'Mikrobiologiya',
+          count: 15,
+          answeredCount: 12,
+          pendingCount: 3,
           acceptedCount: 8,
           rejectedCount: 1
         },
         {
-          subjectId: '3',
-          subjectName: 'Kimyo',
-          count: 10,
-          answeredCount: 8,
+          subjectId: '4-2',
+          subjectName: 'Immunologiya',
+          count: 12,
+          answeredCount: 9,
           pendingCount: 3,
-          acceptedCount: 4,
-          rejectedCount: 1
-        },
-        {
-          subjectId: '1',
-          subjectName: 'Matematika',
-          count: 8,
-          answeredCount: 6,
-          pendingCount: 2,
-          acceptedCount: 4,
+          acceptedCount: 6,
           rejectedCount: 0
         }
       ]
@@ -281,29 +252,29 @@ const generateQuestionStats = (teacher: TeacherDto): QuestionStatsDto[] => {
       subjects: [
         {
           subjectId: '4',
-          subjectName: 'Biologiya',
-          count: 12,
-          answeredCount: 10,
-          pendingCount: 4,
+          subjectName: 'Tibbiy biologiya',
+          count: 18,
+          answeredCount: 15,
+          pendingCount: 5,
+          acceptedCount: 8,
+          rejectedCount: 2
+        },
+        {
+          subjectId: '4-1',
+          subjectName: 'Bioinformatika',
+          count: 10,
+          answeredCount: 8,
+          pendingCount: 2,
           acceptedCount: 5,
           rejectedCount: 1
         },
         {
-          subjectId: '3',
-          subjectName: 'Kimyo',
+          subjectId: '4-2',
+          subjectName: 'Neyrofiziologiya',
           count: 8,
           answeredCount: 6,
           pendingCount: 2,
-          acceptedCount: 3,
-          rejectedCount: 1
-        },
-        {
-          subjectId: '2',
-          subjectName: 'Fizika',
-          count: 5,
-          answeredCount: 4,
-          pendingCount: 1,
-          acceptedCount: 3,
+          acceptedCount: 4,
           rejectedCount: 0
         }
       ]
@@ -311,45 +282,47 @@ const generateQuestionStats = (teacher: TeacherDto): QuestionStatsDto[] => {
   ];
 };
 
-const mockQuestionStats = generateQuestionStats(currentTeacher);
+const mockQuestionStats = generateBiologyQuestionStats(currentTeacher);
 
-// Mock recent activities - teacher ga qarab o'zgaradi
-const generateRecentActivities = (teacher: TeacherDto): RecentActivityDto[] => {
+// Biology-specific recent activities
+const generateBiologyActivities = (
+  teacher: TeacherDto
+): RecentActivityDto[] => {
   const baseActivities: RecentActivityDto[] = [];
 
-  // Agar sinf bor bo'lsa, sinf bilan bog'liq faoliyatlar
   if (teacher.assignedClass) {
     baseActivities.push(
       {
         id: 'act-class-001',
         type: 'answer_received',
-        description: "Yangi javob olindi: 'Hujayra membranasi' savoliga",
+        description:
+          "Yangi javob olindi: 'Fotosintez jarayonining yorug'lik fazasi' savoliga",
         time: '5 daqiqa oldin',
         studentName: 'Ali Valiyev'
       },
       {
         id: 'act-class-002',
         type: 'answer_graded',
-        description: 'Javob baholandi: 85 ball berildi',
+        description: 'Javob baholandi: Mitoz jarayoni haqida - 88 ball berildi',
         time: '2 soat oldin',
         studentName: 'Gulnoza Karimova'
       }
     );
   }
 
-  // Agar savollar bor bo'lsa, savol bilan bog'liq faoliyatlar
   if (mockQuestionStats.length > 0) {
     baseActivities.push(
       {
         id: 'act-question-001',
         type: 'question_created',
-        description: "Yangi savol yaratildi: 'Fotosintez jarayoni'",
+        description: "Yangi savol yaratildi: 'DNK replikatsiyasi jarayoni'",
         time: '1 soat oldin'
       },
       {
         id: 'act-question-002',
         type: 'answer_received',
-        description: "Yangi javob olindi: 'Genetika asoslari' savoliga",
+        description:
+          "Yangi javob olindi: 'Hujayra membranasi tuzilishi' savoliga",
         time: '3 soat oldin',
         studentName: teacher.assignedClass
           ? 'Davron Saidov'
@@ -358,7 +331,6 @@ const generateRecentActivities = (teacher: TeacherDto): RecentActivityDto[] => {
     );
   }
 
-  // Agar hech narsa yo'q bo'lsa
   if (!teacher.assignedClass && mockQuestionStats.length === 0) {
     baseActivities.push({
       id: 'act-empty-001',
@@ -371,29 +343,75 @@ const generateRecentActivities = (teacher: TeacherDto): RecentActivityDto[] => {
   return baseActivities;
 };
 
-const mockRecentActivities = generateRecentActivities(currentTeacher);
+const mockRecentActivities = generateBiologyActivities(currentTeacher);
 
-// Mock top students - faqat sinf bor bo'lganda
+// Biology-focused top students
 const mockTopStudents = currentTeacher.assignedClass
   ? [
-      { id: '1', name: 'Gulnoza Karimova', score: 94, answersCount: 15 },
-      { id: '2', name: 'Ali Valiyev', score: 88, answersCount: 12 },
-      { id: '3', name: 'Zarina Alimova', score: 85, answersCount: 10 },
-      { id: '4', name: 'Davron Saidov', score: 82, answersCount: 8 },
-      { id: '5', name: 'Farhod Olimov', score: 79, answersCount: 9 }
+      {
+        id: '1',
+        name: 'Gulnoza Karimova',
+        score: 94,
+        answersCount: 15,
+        specialty: 'Genetika'
+      },
+      {
+        id: '2',
+        name: 'Ali Valiyev',
+        score: 88,
+        answersCount: 12,
+        specialty: 'Fiziologiya'
+      },
+      {
+        id: '3',
+        name: 'Zarina Alimova',
+        score: 85,
+        answersCount: 10,
+        specialty: 'Ekologiya'
+      },
+      {
+        id: '4',
+        name: 'Davron Saidov',
+        score: 82,
+        answersCount: 8,
+        specialty: 'Anatomiya'
+      },
+      {
+        id: '5',
+        name: 'Farhod Olimov',
+        score: 79,
+        answersCount: 9,
+        specialty: 'Botanika'
+      }
     ]
   : [];
 
-// Available classes for assignment
+// Available biology classes
 const availableClasses = [
-  { id: 'class-001', name: '9-A sinf', grade: 9, studentsCount: 28 },
-  { id: 'class-002', name: '10-B sinf', grade: 10, studentsCount: 25 },
-  { id: 'class-003', name: '11-A sinf', grade: 11, studentsCount: 22 }
+  {
+    id: 'class-001',
+    name: '9-A sinf',
+    grade: 9,
+    studentsCount: 28,
+    focus: 'Umumiy biologiya'
+  },
+  {
+    id: 'class-002',
+    name: '10-B sinf',
+    grade: 10,
+    studentsCount: 25,
+    focus: 'Genetika va evolyutsiya'
+  },
+  {
+    id: 'class-003',
+    name: '11-A sinf',
+    grade: 11,
+    studentsCount: 22,
+    focus: 'Molekulyar biologiya'
+  }
 ];
 
-export default function TeacherDashboard() {
-
-
+export default function BiologyTeacherDashboard() {
   // Check what teacher has
   const hasClass = !!currentTeacher.assignedClass;
   const hasQuestions =
@@ -444,11 +462,11 @@ export default function TeacherDashboard() {
           label: 'Jami savollar',
           data: data,
           backgroundColor: [
-            '#6bd281',
-            '#3b82f6',
-            '#f59e0b',
-            '#ef4444',
-            '#8b5cf6'
+            '#52c41a',
+            '#1890ff',
+            '#faad14',
+            '#f5222d',
+            '#722ed1'
           ],
           borderWidth: 0
         },
@@ -456,11 +474,11 @@ export default function TeacherDashboard() {
           label: 'Javob berilgan',
           data: answeredData,
           backgroundColor: [
-            '#10b981',
-            '#1d4ed8',
-            '#d97706',
-            '#dc2626',
-            '#7c3aed'
+            '#389e0d',
+            '#096dd9',
+            '#d48806',
+            '#cf1322',
+            '#531dab'
           ],
           borderWidth: 0
         }
@@ -518,12 +536,16 @@ export default function TeacherDashboard() {
       title: "O'quvchi",
       dataIndex: 'name',
       key: 'name',
-      render: (name: string) => (
+      render: (name: string, record: any) => (
         <div className="flex items-center gap-2">
-          <User size={16} className="text-slate-400" />
-          <Text className="font-medium text-slate-900 dark:text-white">
-            {name}
-          </Text>
+          <UserOutlined className="text-slate-400" />
+          <div>
+            <Text className="font-medium text-slate-900 dark:text-white">
+              {name}
+            </Text>
+            <br />
+            <Text className="text-xs text-slate-500">{record.specialty}</Text>
+          </div>
         </div>
       )
     },
@@ -556,6 +578,7 @@ export default function TeacherDashboard() {
             Xush kelibsiz, {currentTeacher.fullName}!
           </Title>
           <Text className="text-slate-600 dark:text-slate-400">
+            <BugOutlined className="mr-2" />
             {currentTeacher.subject} o'qituvchisi •{' '}
             {currentTeacher.assignedClass?.name || 'Sinf tayinlanmagan'}
           </Text>
@@ -567,9 +590,9 @@ export default function TeacherDashboard() {
         {!hasClass && !hasQuestions && (
           <Alert
             message="Hech narsa tayinlanmagan"
-            description="Sizga hali sinf ham, savollar ham tayinlanmagan. Administrator bilan bog'laning."
+            description="Sizga hali sinf ham, biologiya savollari ham tayinlanmagan. Administrator bilan bog'laning."
             type="error"
-            icon={<AlertCircle />}
+            icon={<ExclamationCircleOutlined />}
             showIcon
           />
         )}
@@ -577,11 +600,11 @@ export default function TeacherDashboard() {
         {!hasClass && hasQuestions && (
           <Alert
             message="Sinf tayinlanmagan"
-            description="Sizga sinf tayinlanmagan, lekin savollaringiz mavjud. To'liq funksionallik uchun sinf tayinlang."
+            description="Sizga sinf tayinlanmagan, lekin biologiya savollaringiz mavjud. To'liq funksionallik uchun sinf tayinlang."
             type="warning"
-            icon={<AlertCircle />}
+            icon={<ExclamationCircleOutlined />}
             action={
-              <Button type="primary"  icon={<Plus />}>
+              <Button type="primary" icon={<PlusOutlined />}>
                 Sinf tanlash
               </Button>
             }
@@ -591,13 +614,13 @@ export default function TeacherDashboard() {
 
         {hasClass && !hasQuestions && (
           <Alert
-            message="Savollar mavjud emas"
-            description="Sizga sinf tayinlangan, lekin hali savollar yaratilmagan. Savollar yaratishni boshlang."
+            message="Biologiya savollari mavjud emas"
+            description="Sizga sinf tayinlangan, lekin hali biologiya savollari yaratilmagan. Savollar yaratishni boshlang."
             type="info"
-            icon={<MessageSquare />}
+            icon={<MessageOutlined />}
             action={
-              <Button type="primary"  icon={<Plus />}>
-                Savol yaratish
+              <Button type="primary" icon={<PlusOutlined />}>
+                Biologiya savoli yaratish
               </Button>
             }
             showIcon
@@ -607,13 +630,15 @@ export default function TeacherDashboard() {
 
       {/* Overall Statistics - faqat savollar bor bo'lganda */}
       {hasQuestions && (
-        <Row gutter={[24, 24]}>
-          <Col xs={24} sm={8} lg={hasClass ? 4 : 5}>
+        <Row gutter={[24, 25]}>
+          <Col xs={25} sm={8} lg={4}>
             <div className="bg-gradient-to-br p-4 rounded-lg from-blue-400 to-blue-600 border-0">
               <Statistic
-                title={<span className="text-white">Jami Savollar</span>}
+                title={
+                  <span className="text-white">Jami Biologiya Savollari</span>
+                }
                 value={overallStats.totalQuestions}
-                prefix={<FileText className="text-white" />}
+                prefix={<FileTextOutlined className="text-white" />}
                 valueStyle={{
                   fontSize: '2rem',
                   fontWeight: 'bold',
@@ -622,12 +647,12 @@ export default function TeacherDashboard() {
               />
             </div>
           </Col>
-          <Col xs={24} sm={8} lg={hasClass ? 4 : 5}>
+          <Col xs={25} sm={8} lg={5}>
             <div className="bg-gradient-to-br p-4 rounded-lg from-green-400 to-green-600 border-0">
               <Statistic
                 title={<span className="text-white">Javob Berilgan</span>}
                 value={overallStats.totalAnswered}
-                prefix={<CheckCircle className="text-white" />}
+                prefix={<CheckCircleOutlined className="text-white" />}
                 valueStyle={{
                   fontSize: '2rem',
                   fontWeight: 'bold',
@@ -636,12 +661,12 @@ export default function TeacherDashboard() {
               />
             </div>
           </Col>
-          <Col xs={24} sm={8} lg={hasClass ? 4 : 5}>
+          <Col xs={25} sm={8} lg={4}>
             <div className="bg-gradient-to-br p-4 rounded-lg from-orange-400 to-orange-600 border-0">
               <Statistic
                 title={<span className="text-white">Kutilayotgan</span>}
                 value={overallStats.totalPending}
-                prefix={<Clock className="text-white" />}
+                prefix={<ClockCircleOutlined className="text-white" />}
                 valueStyle={{
                   fontSize: '2rem',
                   fontWeight: 'bold',
@@ -650,12 +675,12 @@ export default function TeacherDashboard() {
               />
             </div>
           </Col>
-          <Col xs={24} sm={8} lg={hasClass ? 4 : 5}>
+          <Col xs={25} sm={8} lg={5}>
             <div className="bg-gradient-to-br p-4 rounded-lg from-emerald-400 to-emerald-600 border-0">
               <Statistic
                 title={<span className="text-white">Qabul Qilingan</span>}
                 value={overallStats.totalAccepted}
-                prefix={<CheckCircle className="text-white" />}
+                prefix={<CheckCircleOutlined className="text-white" />}
                 valueStyle={{
                   fontSize: '2rem',
                   fontWeight: 'bold',
@@ -664,12 +689,12 @@ export default function TeacherDashboard() {
               />
             </div>
           </Col>
-          <Col xs={24} sm={8} lg={hasClass ? 4 : 5}>
+          <Col xs={25} sm={8} lg={4}>
             <div className="bg-gradient-to-br p-4 rounded-lg from-red-400 to-red-600 border-0">
               <Statistic
                 title={<span className="text-white">Rad Etilgan</span>}
                 value={overallStats.totalRejected}
-                prefix={<XCircle className="text-white" />}
+                prefix={<CloseCircleOutlined className="text-white" />}
                 valueStyle={{
                   fontSize: '2rem',
                   fontWeight: 'bold',
@@ -678,13 +703,15 @@ export default function TeacherDashboard() {
               />
             </div>
           </Col>
-          {hasClass && (
+          {/* {hasClass && (
             <Col xs={24} sm={8} lg={4}>
               <div className="bg-gradient-to-br p-4 rounded-lg from-purple-400 to-purple-600 border-0">
                 <Statistic
-                  title={<span className="text-white">Mening Sinfim</span>}
+                  title={
+                    <span className="text-white">Mening Biologiya Sinfim</span>
+                  }
                   value={currentTeacher.assignedClass!.studentsCount}
-                  prefix={<Users className="text-white" />}
+                  prefix={<TeamOutlined className="text-white" />}
                   suffix={<span className="text-white text-sm">o'quvchi</span>}
                   valueStyle={{
                     fontSize: '2rem',
@@ -694,19 +721,19 @@ export default function TeacherDashboard() {
                 />
               </div>
             </Col>
-          )}
+          )} */}
         </Row>
       )}
 
       {/* Class Info - faqat sinf bor bo'lganda */}
-      {hasClass && (
+      {/* {hasClass && (
         <Card
           className="bg-white dark:bg-[#101010] border-slate-200 dark:border-slate-800"
           title={
             <div className="flex items-center gap-2">
-              <GraduationCap className="text-[#6bd281]" />
+              <ExperimentOutlined className="text-[#52c41a]" />
               <Title level={4} className="!mb-0 text-slate-900 dark:text-white">
-                Mening Sinfim - {currentTeacher.assignedClass!.name}
+                Mening Biologiya Sinfim - {currentTeacher.assignedClass!.name}
               </Title>
             </div>
           }
@@ -716,7 +743,7 @@ export default function TeacherDashboard() {
               <Statistic
                 title="O'quvchilar soni"
                 value={currentTeacher.assignedClass!.studentsCount}
-                prefix={<Users className="text-[#6bd281]" />}
+                prefix={<TeamOutlined className="text-[#52c41a]" />}
               />
             </Col>
             <Col xs={24} sm={8}>
@@ -724,63 +751,60 @@ export default function TeacherDashboard() {
                 title="Sinf darajasi"
                 value={currentTeacher.assignedClass!.grade}
                 suffix="-sinf"
-                prefix={<BookOpen className="text-[#6bd281]" />}
+                prefix={<BookOutlined className="text-[#52c41a]" />}
               />
             </Col>
             <Col xs={24} sm={8}>
               <div>
                 <Text strong className="text-slate-900 dark:text-white">
-                  Faollik darajasi
+                  Biologiya faniga qiziqish darajasi
                 </Text>
-                <Progress percent={85} strokeColor="#6bd281" className="mt-2" />
-                <Text className="text-sm text-slate-500">Yaxshi natija</Text>
+                <Progress percent={92} strokeColor="#52c41a" className="mt-2" />
+                <Text className="text-sm text-slate-500">A'lo natija</Text>
               </div>
             </Col>
           </Row>
         </Card>
-      )}
+      )} */}
 
-      {/* No Class - Show Available Classes */}
+      {/* No Class - Show Available Biology Classes */}
       {!hasClass && (
         <Card
           className="bg-white dark:bg-[#101010] border-slate-200 dark:border-slate-800"
           title={
             <div className="flex items-center gap-2">
-              <Users className="text-orange-500" />
+              <TeamOutlined className="text-orange-500" />
               <Title level={4} className="!mb-0 text-slate-900 dark:text-white">
-                Mavjud sinflar
+                Mavjud biologiya sinflari
               </Title>
             </div>
           }
         >
           <div className="text-center py-8">
-            <AlertCircle size={48} className="text-orange-500 mx-auto mb-4" />
+            <ExclamationCircleOutlined className="text-orange-500 text-5xl mb-4" />
             <Title
               level={4}
               className="text-slate-600 dark:text-slate-400 mb-2"
             >
-              Sizga sinf tayinlanmagan
+              Sizga biologiya sinfi tayinlanmagan
             </Title>
             <Text className="text-slate-500 mb-6">
-              To'liq dashboard funksiyalaridan foydalanish uchun sinf
+              To'liq dashboard funksiyalaridan foydalanish uchun biologiya sinfi
               tayinlanishi kerak
             </Text>
-
             <Row gutter={[16, 16]} justify="center">
               {availableClasses.map((classItem) => (
                 <Col xs={24} sm={8} key={classItem.id}>
                   <Card
-                    
-                    className="border-dashed border-slate-300 dark:border-slate-600 hover:border-[#6bd281] transition-colors cursor-pointer"
+                    className="border-dashed border-slate-300 dark:border-slate-600 hover:border-[#52c41a] transition-colors cursor-pointer"
                     onClick={() => {
-                      console.log(`Sinf tanlandi: ${classItem.name}`);
+                      console.log(
+                        `Biologiya sinfi tanlandi: ${classItem.name}`
+                      );
                     }}
                   >
                     <div className="text-center">
-                      <GraduationCap
-                        className="text-[#6bd281] mx-auto mb-2"
-                        size={32}
-                      />
+                      <ExperimentOutlined className="text-[#52c41a] text-3xl mb-2" />
                       <Title
                         level={5}
                         className="!mb-1 text-slate-900 dark:text-white"
@@ -789,6 +813,10 @@ export default function TeacherDashboard() {
                       </Title>
                       <Text className="text-slate-500">
                         {classItem.studentsCount} o'quvchi
+                      </Text>
+                      <br />
+                      <Text className="text-xs text-slate-400">
+                        {classItem.focus}
                       </Text>
                     </div>
                   </Card>
@@ -799,14 +827,15 @@ export default function TeacherDashboard() {
         </Card>
       )}
 
-      {/* Question Statistics by Levels - faqat savollar bor bo'lganda */}
+      {/* Biology Question Statistics by Levels */}
       {hasQuestions && (
         <div className="space-y-6">
           <Title level={3} className="text-slate-900 dark:text-white">
-            Darajalar bo'yicha savollar statistikasi
+            <BugOutlined className="mr-2" />
+            Biologiya darajalar bo'yicha savollar statistikasi
             {!hasClass && (
               <Text className="text-sm text-slate-500 ml-2">
-                (Faqat sizning fanlaringiz)
+                (Faqat biologiya yo'nalishlari)
               </Text>
             )}
           </Title>
@@ -821,7 +850,8 @@ export default function TeacherDashboard() {
                         level={5}
                         className="!mb-0 text-slate-900 dark:text-white"
                       >
-                        {levelStats.level}-daraja savollar
+                        <EyeOutlined className="mr-2" />
+                        {levelStats.level}-daraja biologiya savollari
                       </Title>
                       <Tag color="blue">
                         {levelStats.subjects.reduce(
@@ -849,15 +879,9 @@ export default function TeacherDashboard() {
                           {subject.subjectName}:
                         </Text>
                         <div className="flex gap-2">
-                          <Tag color="blue" >
-                            {subject.count}
-                          </Tag>
-                          <Tag color="green" >
-                            {subject.acceptedCount}
-                          </Tag>
-                          <Tag color="orange" >
-                            {subject.pendingCount}
-                          </Tag>
+                          <Tag color="blue">{subject.count}</Tag>
+                          <Tag color="green">{subject.acceptedCount}</Tag>
+                          <Tag color="orange">{subject.pendingCount}</Tag>
                         </div>
                       </div>
                     ))}
@@ -875,49 +899,47 @@ export default function TeacherDashboard() {
           className="bg-white dark:bg-[#101010] border-slate-200 dark:border-slate-800"
           title={
             <div className="flex items-center gap-2">
-              <MessageSquare className="text-blue-500" />
+              <MessageOutlined className="text-blue-500" />
               <Title level={4} className="!mb-0 text-slate-900 dark:text-white">
-                Savollar bo'limi
+                Biologiya savollari bo'limi
               </Title>
             </div>
           }
         >
           <Empty
-            image={
-              <MessageSquare size={64} className="text-slate-300 mx-auto" />
-            }
+            image={<MessageOutlined className="text-slate-300 text-6xl" />}
             description={
               <div className="text-center">
                 <Title level={4} className="text-slate-400 mb-2">
-                  Hali savollar yaratilmagan
+                  Hali biologiya savollari yaratilmagan
                 </Title>
                 <Text className="text-slate-500">
-                  O'quvchilar uchun savollar yaratishni boshlang
+                  O'quvchilar uchun biologiya savollari yaratishni boshlang
                 </Text>
               </div>
             }
           >
-            <Button type="primary" icon={<Plus />}>
-              Birinchi savolni yaratish
+            <Button type="primary" icon={<PlusOutlined />}>
+              Birinchi biologiya savolini yaratish
             </Button>
           </Empty>
         </Card>
       )}
 
       <Row gutter={[24, 24]}>
-        {/* Top Students - faqat sinf bor bo'lganda */}
+        {/* Top Biology Students */}
         {hasClass && (
           <Col xs={24} lg={hasQuestions ? 12 : 24}>
             <Card
               className="bg-white dark:bg-[#101010] border-slate-200 dark:border-slate-800"
               title={
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="text-[#6bd281]" />
+                  <TrophyOutlined className="text-[#52c41a]" />
                   <Title
                     level={4}
                     className="!mb-0 text-slate-900 dark:text-white"
                   >
-                    Eng faol o'quvchilar
+                    Eng faol biologiya o'quvchilari
                   </Title>
                 </div>
               }
@@ -927,44 +949,43 @@ export default function TeacherDashboard() {
                 dataSource={mockTopStudents}
                 rowKey="id"
                 pagination={false}
-                
               />
             </Card>
           </Col>
         )}
 
-        {/* No Students Info - sinf yo'q bo'lganda */}
+        {/* No Students Info */}
         {!hasClass && hasQuestions && (
           <Col xs={24} lg={12}>
             <Card
               className="bg-white dark:bg-[#101010] border-slate-200 dark:border-slate-800"
               title={
                 <div className="flex items-center gap-2">
-                  <Users className="text-orange-500" />
+                  <TeamOutlined className="text-orange-500" />
                   <Title
                     level={4}
                     className="!mb-0 text-slate-900 dark:text-white"
                   >
-                    O'quvchilar ma'lumoti
+                    Biologiya o'quvchilari ma'lumoti
                   </Title>
                 </div>
               }
             >
               <div className="text-center py-8">
-                <Users size={48} className="text-slate-300 mx-auto mb-4" />
+                <TeamOutlined className="text-slate-300 text-5xl mb-4" />
                 <Title level={5} className="text-slate-400 mb-2">
                   O'quvchilar ma'lumoti mavjud emas
                 </Title>
                 <Text className="text-slate-500">
-                  Sinf tayinlangandan so'ng o'quvchilar statistikasini
-                  ko'rishingiz mumkin
+                  Biologiya sinfi tayinlangandan so'ng o'quvchilar
+                  statistikasini ko'rishingiz mumkin
                 </Text>
               </div>
             </Card>
           </Col>
         )}
 
-        {/* Recent Activities */}
+        {/* Recent Biology Activities */}
         <Col
           xs={24}
           lg={
@@ -975,12 +996,12 @@ export default function TeacherDashboard() {
             className="bg-white dark:bg-[#101010] border-slate-200 dark:border-slate-800"
             title={
               <div className="flex items-center gap-2">
-                <Clock className="text-[#6bd281]" />
+                <ClockCircleOutlined className="text-[#52c41a]" />
                 <Title
                   level={4}
                   className="!mb-0 text-slate-900 dark:text-white"
                 >
-                  So'nggi faoliyat
+                  So'nggi biologiya faoliyati
                 </Title>
               </div>
             }
@@ -997,18 +1018,18 @@ export default function TeacherDashboard() {
                           style={{
                             backgroundColor:
                               item.type === 'answer_received'
-                                ? '#6bd281'
+                                ? '#52c41a'
                                 : item.type === 'question_created'
-                                ? '#3b82f6'
-                                : '#f59e0b'
+                                ? '#1890ff'
+                                : '#faad14'
                           }}
                           icon={
                             item.type === 'answer_received' ? (
-                              <FileText size={16} />
+                              <FileTextOutlined />
                             ) : item.type === 'question_created' ? (
-                              <BookOpen size={16} />
+                              <BookOutlined />
                             ) : (
-                              <CheckCircle size={16} />
+                              <CheckCircleOutlined />
                             )
                           }
                         />
@@ -1020,7 +1041,7 @@ export default function TeacherDashboard() {
                           </Text>
                           {item.studentName &&
                             item.studentName !== "Noma'lum o'quvchi" && (
-                              <Tag color="blue"  className="ml-2">
+                              <Tag color="blue" className="ml-2">
                                 {item.studentName}
                               </Tag>
                             )}
@@ -1037,12 +1058,13 @@ export default function TeacherDashboard() {
               />
             ) : (
               <div className="text-center py-8">
-                <Clock size={48} className="text-slate-300 mx-auto mb-4" />
+                <ClockCircleOutlined className="text-slate-300 text-5xl mb-4" />
                 <Title level={5} className="text-slate-400 mb-2">
-                  Hozircha faoliyat yo'q
+                  Hozircha biologiya faoliyati yo'q
                 </Title>
                 <Text className="text-slate-500">
-                  Savollar yaratib, sinf tayinlangandan so'ng faoliyat ko'rinadi
+                  Biologiya savollari yaratib, sinf tayinlangandan so'ng
+                  faoliyat ko'rinadi
                 </Text>
               </div>
             )}

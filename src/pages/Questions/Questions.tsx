@@ -32,21 +32,13 @@ const { Option } = Select;
 const { TextArea } = Input;
 
 // Mock data (oldin mavjud bo'lganlardan foydalanamiz va yangilarini qo'shamiz)
-const mockSubjects = [
-  { id: '1', name: 'Matematika' },
-  { id: '2', name: 'Fizika' },
-  { id: '3', name: 'Kimyo' },
-  { id: '4', name: 'Biologiya' },
-  { id: '5', name: 'Tarix' },
-  { id: '6', name: 'Geografiya' },
-  { id: '7', name: 'Adabiyot' }
-];
+const mockSubjects = [{ id: '4', name: 'Biologiya' }];
 
 const mockResources = [
-  { id: 'res-001', title: "Algebra bo'yicha qo'llanma", subjectId: '1' },
-  { id: 'res-002', title: "Fizika formulalari to'plami", subjectId: '2' },
-  { id: 'res-003', title: 'Kimyoviy reaksiyalar jadvali', subjectId: '3' },
-  { id: 'res-004', title: 'Biologiya test savollari', subjectId: '4' }
+  { id: 'res-001', title: "Biologiya bo'yicha qo'llanma", subjectId: '4' },
+  { id: 'res-002', title: 'Biologiya test savollari', subjectId: '4' },
+  { id: 'res-003', title: 'Biologiya darsligi', subjectId: '4' },
+  { id: 'res-004', title: "Biologiya o'quv qo'llanmasi", subjectId: '4' }
 ];
 
 const mockStudents = [
@@ -86,54 +78,6 @@ export type AnswerDto = {
 
 // Mock Questions
 const generateMockQuestions = (): QuestionDto[] => [
-  {
-    id: 'q-001',
-    subjectId: '1',
-    grade: 10,
-    level: 5,
-    resourceIds: ['res-001'],
-    questionText: "Pifagor teoremasini ta'riflang va misol keltiring.",
-    type: 'text', // Faqat "text"
-    status: 'active',
-    createdBy: 'teacher1',
-    createdAt: '2024-07-20'
-  },
-  {
-    id: 'q-002',
-    subjectId: '1',
-    grade: 10,
-    level: 7,
-    resourceIds: ['res-001'],
-    questionText: "Kvadrat tenglamaning umumiy ko'rinishi qaysi?",
-    type: 'text', // Faqat "text"
-    status: 'active',
-    createdBy: 'teacher1',
-    createdAt: '2024-07-21'
-  },
-  {
-    id: 'q-003',
-    subjectId: '2',
-    grade: 11,
-    level: 6,
-    resourceIds: ['res-002'],
-    questionText: 'Nyutonning birinchi qonuni nima haqida?',
-    type: 'text', // Faqat "text"
-    status: 'active',
-    createdBy: 'teacher2',
-    createdAt: '2024-07-22'
-  },
-  {
-    id: 'q-004',
-    subjectId: '3',
-    grade: 10,
-    level: 4,
-    resourceIds: ['res-003'],
-    questionText: "Suvning kimyoviy formulasi H2O. Bu to'g'rimi?",
-    type: 'text', // Faqat "text"
-    status: 'active',
-    createdBy: 'teacher1',
-    createdAt: '2024-07-23'
-  },
   {
     id: 'q-005',
     subjectId: '4',
@@ -204,7 +148,7 @@ export default function QuestionsPage() {
   const [selectedQuestionForAnswers, setSelectedQuestionForAnswers] =
     useState<QuestionDto | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [subjectFilter, setSubjectFilter] = useState<string>('all');
+
   const [levelFilter, setLevelFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all'); // For question status
@@ -239,9 +183,7 @@ export default function QuestionsPage() {
         q.questionText.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    if (subjectFilter !== 'all') {
-      filtered = filtered.filter((q) => q.subjectId === subjectFilter);
-    }
+
     if (levelFilter !== 'all') {
       filtered = filtered.filter(
         (q) => q.level === Number.parseInt(levelFilter)
@@ -256,14 +198,7 @@ export default function QuestionsPage() {
     }
 
     setFilteredQuestions(filtered);
-  }, [
-    questions,
-    searchTerm,
-    subjectFilter,
-    levelFilter,
-    typeFilter,
-    statusFilter
-  ]);
+  }, [questions, searchTerm, levelFilter, typeFilter, statusFilter]);
 
   // Handle create/edit question
   const handleCreateQuestion = () => {
@@ -361,16 +296,7 @@ export default function QuestionsPage() {
       ellipsis: true,
       render: (text) => <Tooltip title={text}>{text}</Tooltip>
     },
-    {
-      title: 'Fan',
-      dataIndex: 'subjectId',
-      key: 'subject',
-      render: (subjectId) => (
-        <Tag color="blue">{getSubjectName(subjectId)}</Tag>
-      ),
-      filters: mockSubjects.map((s) => ({ text: s.name, value: s.id })),
-      onFilter: (value: any, record) => record.subjectId === value
-    },
+
     {
       title: 'Daraja',
       dataIndex: 'level',
@@ -615,21 +541,7 @@ export default function QuestionsPage() {
               prefix={<Search size={16} />}
             />
           </Col>
-          <Col xs={24} sm={8} md={4}>
-            <Select
-              placeholder="Fan bo'yicha filtrlash"
-              value={subjectFilter}
-              onChange={setSubjectFilter}
-              style={{ width: '100%' }}
-            >
-              <Option value="all">Barcha fanlar</Option>
-              {mockSubjects.map((subject) => (
-                <Option key={subject.id} value={subject.id}>
-                  {subject.name}
-                </Option>
-              ))}
-            </Select>
-          </Col>
+
           <Col xs={24} sm={8} md={4}>
             <Select
               placeholder="Daraja bo'yicha filtrlash"
@@ -720,39 +632,6 @@ export default function QuestionsPage() {
           >
             <TextArea rows={4} placeholder="Savol matnini kiriting..." />
           </Form.Item>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="subjectId"
-                label="Fan"
-                rules={[{ required: true, message: 'Fanni tanlang!' }]}
-              >
-                <Select placeholder="Fanni tanlang">
-                  {mockSubjects.map((subject) => (
-                    <Option key={subject.id} value={subject.id}>
-                      {subject.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="grade"
-                label="Sinf"
-                rules={[{ required: true, message: 'Sinfni tanlang!' }]}
-              >
-                <Select placeholder="Sinfni tanlang">
-                  {[8, 9, 10, 11].map((g) => (
-                    <Option key={g} value={g}>
-                      {g}-sinf
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
 
           <Row gutter={16}>
             <Col span={12}>

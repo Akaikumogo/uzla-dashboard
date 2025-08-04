@@ -7,7 +7,7 @@ import {
   LogOut,
   BookOpen,
   BrainCircuit,
-  UsersRound,
+
   Box
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -20,16 +20,6 @@ const navItems = [
     path: '/dashboard/home',
     label: { uz: 'Bosh sahifa', en: 'Overview', ru: 'Главная' },
     icon: Home
-  },
-  {
-    path: '/dashboard/science',
-    label: { uz: 'Fanlar', en: 'Scince', ru: 'Наука' },
-    icon: BookOpen
-  },
-  {
-    path: '/dashboard/teachers',
-    label: { uz: 'Ustozlar', en: 'Teachers', ru: 'Преподаватели' },
-    icon: UsersRound
   },
   {
     path: '/dashboard/classes',

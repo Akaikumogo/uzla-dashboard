@@ -2,15 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  GraduationCap,
-  Plus,
-  Search,
-  Users,
-  User,
-  Edit,
-  Trash2
-} from 'lucide-react';
+import { GraduationCap, Plus, Search, Users, Edit, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 import {
   Row,
@@ -27,8 +19,7 @@ import {
   Statistic,
   Tooltip,
   Popconfirm,
-  Card,
-  InputNumber
+  Card
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -52,17 +43,6 @@ export type ClassDto = {
   schedule?: string;
   subjectMastery: Record<string, number>; // Fanlar bo'yicha o'zlashtirish darajasi (subjectId: percentage)
 };
-
-// Mock subjects data
-const mockSubjects = [
-  { id: '1', name: 'Matematika' },
-  { id: '2', name: 'Fizika' },
-  { id: '3', name: 'Kimyo' },
-  { id: '4', name: 'Biologiya' },
-  { id: '5', name: 'Tarix' },
-  { id: '6', name: 'Geografiya' },
-  { id: '7', name: 'Adabiyot' }
-];
 
 // Mock teachers data
 const mockTeachers = [
@@ -160,10 +140,6 @@ export default function ClassesPage() {
   const [form] = Form.useForm();
 
   // Get subject name by ID
-  const getSubjectName = (subjectId: string) => {
-    const subject = mockSubjects.find((s) => s.id === subjectId);
-    return subject ? subject.name : 'Unknown';
-  };
 
   // Get teacher name by ID
   const getTeacherName = (teacherId: string) => {
@@ -249,42 +225,7 @@ export default function ClassesPage() {
         </Link>
       )
     },
-    {
-      title: 'Sinf rahbari',
-      dataIndex: 'teacher',
-      key: 'teacher',
-      render: (teacherId: string) => (
-        <div className="flex items-center gap-2">
-          <User size={16} className="text-slate-400" />
-          <span className="text-slate-700 dark:text-slate-300">
-            {getTeacherName(teacherId)}
-          </span>
-        </div>
-      )
-    },
-    {
-      title: 'Fanlar',
-      dataIndex: 'subjects',
-      key: 'subjects',
-      render: (subjects: string[]) => (
-        <div className="flex flex-wrap gap-1">
-          {subjects.length > 0 ? (
-            subjects.slice(0, 3).map((subjectId) => (
-              <Tag key={subjectId} color="blue" className="text-xs">
-                {getSubjectName(subjectId)}
-              </Tag>
-            ))
-          ) : (
-            <Tag color="default">Fanlar tayinlanmagan</Tag>
-          )}
-          {subjects.length > 3 && (
-            <Tag color="default" className="text-xs">
-              +{subjects.length - 3} ta
-            </Tag>
-          )}
-        </div>
-      )
-    },
+
     {
       title: "O'quvchilar",
       key: 'students',
@@ -301,16 +242,7 @@ export default function ClassesPage() {
       ),
       sorter: (a: ClassDto, b: ClassDto) => a.studentsCount - b.studentsCount
     },
-    {
-      title: 'Jadval',
-      dataIndex: 'schedule',
-      key: 'schedule',
-      render: (schedule: string) => (
-        <div className="text-sm text-slate-600 dark:text-slate-400 max-w-32 truncate">
-          {schedule || 'Belgilanmagan'}
-        </div>
-      )
-    },
+
     {
       title: 'Holat',
       dataIndex: 'status',
@@ -613,43 +545,6 @@ export default function ClassesPage() {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                name="teacher"
-                label="Sinf rahbari"
-                rules={[{ required: true, message: 'Sinf rahbarini tanlang' }]}
-              >
-                <Select placeholder="Sinf rahbarini tanlang">
-                  {mockTeachers.map((teacher) => (
-                    <Option key={teacher.id} value={teacher.id}>
-                      {teacher.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="maxStudents"
-                label="Maksimal o'quvchilar soni"
-                rules={[
-                  {
-                    required: true,
-                    message: "Maksimal o'quvchilar sonini kiriting"
-                  }
-                ]}
-              >
-                <InputNumber
-                  min={1}
-                  max={50}
-                  placeholder="30"
-                  style={{ width: '100%' }}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
                 name="status"
                 label="Holat"
                 initialValue="active"
@@ -661,22 +556,7 @@ export default function ClassesPage() {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item name="schedule" label="Dars jadvali">
-                <Input placeholder="Masalan: Dushanba, Chorshanba, Juma" />
-              </Form.Item>
-            </Col>
           </Row>
-
-          <Form.Item name="subjects" label="Fanlar">
-            <Select mode="multiple" placeholder="Fanlarni tanlang" allowClear>
-              {mockSubjects.map((subject) => (
-                <Option key={subject.id} value={subject.id}>
-                  {subject.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
 
           <Form.Item name="description" label="Tavsif">
             <TextArea rows={3} placeholder="Sinf haqida qisqacha ma'lumot..." />

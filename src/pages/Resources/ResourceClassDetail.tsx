@@ -45,7 +45,7 @@ export type ResourceDto = {
   id: string;
   title: string;
   description: string;
-  subjectId: string;
+
   grade: number; // 10 yoki 11
   classId: string; // class-001
   content: {
@@ -60,27 +60,15 @@ export type ResourceDto = {
   createdAt: string;
 };
 
-// Mock subjects data
-const mockSubjects = [
-  { id: '1', name: 'Matematika' },
-  { id: '2', name: 'Fizika' },
-  { id: '3', name: 'Kimyo' },
-  { id: '4', name: 'Biologiya' },
-  { id: '5', name: 'Tarix' },
-  { id: '6', name: 'Geografiya' },
-  { id: '7', name: 'Adabiyot' }
-];
-
 // Mock classes data
 const mockClasses = [
   {
     id: 'class-001',
     name: '10-A sinf',
-    grade: 10,
-    subjectIds: ['1', '2', '3']
+    grade: 10
   },
-  { id: 'class-002', name: '10-B sinf', grade: 10, subjectIds: ['3', '4'] },
-  { id: 'class-003', name: '11-A sinf', grade: 11, subjectIds: ['1', '2'] },
+  { id: 'class-002', name: '10 sinf', grade: 10, subjectIds: ['3', '4'] },
+  { id: 'class-003', name: '11-sinf', grade: 11, subjectIds: ['1', '2'] },
   {
     id: 'class-004',
     name: '9-A sinf',
@@ -92,11 +80,11 @@ const mockClasses = [
 
 // Mock questions data (for linking)
 const mockQuestions = [
-  { id: 'q1', text: 'Pifagor teoremasi', subjectId: '1', level: 'easy' },
-  { id: 'q2', text: 'Kvadrat tenglamalar', subjectId: '1', level: 'medium' },
-  { id: 'q3', text: 'Nyuton qonunlari', subjectId: '2', level: 'easy' },
-  { id: 'q4', text: 'Organik birikmalar', subjectId: '3', level: 'medium' },
-  { id: 'q5', text: 'Hujayra tuzilishi', subjectId: '4', level: 'easy' }
+  { id: 'q1', text: 'Pifagor teoremasi', level: 'easy' },
+  { id: 'q2', text: 'Kvadrat tenglamalar', level: 'medium' },
+  { id: 'q3', text: 'Nyuton qonunlari', level: 'easy' },
+  { id: 'q4', text: 'Organik birikmalar', level: 'medium' },
+  { id: 'q5', text: 'Hujayra tuzilishi', level: 'easy' }
 ];
 
 const generateMockResources = (): ResourceDto[] => [
@@ -104,7 +92,7 @@ const generateMockResources = (): ResourceDto[] => [
     id: 'res-001',
     title: "Algebra bo'yicha qo'llanma",
     description: "10-sinf algebra darsligi uchun qo'shimcha materiallar.",
-    subjectId: '1',
+
     grade: 10,
     classId: 'class-001',
     content: {}, // content ichidan fileUrl olib tashlandi
@@ -118,7 +106,7 @@ const generateMockResources = (): ResourceDto[] => [
     id: 'res-002',
     title: "Fizika formulalari to'plami",
     description: "Mexanika va termodinamika bo'yicha asosiy formulalar.",
-    subjectId: '2',
+
     grade: 11,
     classId: 'class-003',
     content: { text: 'Formulalar matni' },
@@ -130,7 +118,7 @@ const generateMockResources = (): ResourceDto[] => [
     id: 'res-003',
     title: 'Kimyoviy reaksiyalar jadvali',
     description: 'Organik va noorganik kimyo uchun reaksiyalar jadvali.',
-    subjectId: '3',
+
     grade: 10,
     classId: 'class-001',
     content: { imageUrl: '/path/to/chemistry_reactions.png' },
@@ -142,7 +130,7 @@ const generateMockResources = (): ResourceDto[] => [
     id: 'res-004',
     title: 'Biologiya test savollari',
     description: "Hujayra biologiyasi bo'yicha test savollari to'plami.",
-    subjectId: '4',
+
     grade: 9,
     classId: 'class-004',
     content: {},
@@ -155,8 +143,7 @@ const generateMockResources = (): ResourceDto[] => [
 ];
 
 export default function ResourcesClassDetail() {
-  const { subjectId, classId } = useParams<{
-    subjectId: string;
+  const { classId } = useParams<{
     classId: string;
   }>();
   const navigate = useNavigate();
@@ -173,29 +160,19 @@ export default function ResourcesClassDetail() {
     useState<ResourceDto | null>(null);
   const [form] = Form.useForm();
 
-  const currentSubject = mockSubjects.find((s) => s.id === subjectId);
   const currentClass = mockClasses.find((c) => c.id === classId);
 
   useEffect(() => {
-    if (!currentSubject || !currentClass) {
+    if (!currentClass) {
       message.error('Fan yoki sinf topilmadi!');
       navigate('/dashboard/resources');
       return;
     }
     const filtered = resources.filter(
-      (res) =>
-        res.subjectId === subjectId &&
-        res.classId === classId &&
-        res.grade === currentClass.grade
+      (res) => res.classId === classId && res.grade === currentClass.grade
     );
     setFilteredResources(filtered);
-  }, [resources, subjectId, classId, currentSubject, currentClass, navigate]);
-
-  // Get subject name by ID
-  const getSubjectName = (sId: string) => {
-    const subject = mockSubjects.find((s) => s.id === sId);
-    return subject ? subject.name : "Noma'lum fan";
-  };
+  }, [resources, classId, currentClass, navigate]);
 
   // Get question text by ID
   const getQuestionText = (qId: string) => {
@@ -285,7 +262,7 @@ export default function ResourcesClassDetail() {
         id: Date.now().toString(),
         title: values.title,
         description: values.description,
-        subjectId: subjectId!,
+
         grade: currentClass!.grade,
         classId: classId!,
         content: content,
@@ -471,7 +448,7 @@ export default function ResourcesClassDetail() {
     }
   ];
 
-  if (!currentSubject || !currentClass) {
+  if (!currentClass) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-100px)] dark:text-white">
         Yuklanmoqda...
@@ -487,13 +464,13 @@ export default function ResourcesClassDetail() {
           <Button
             type="text"
             icon={<ArrowLeft size={20} />}
-            onClick={() => navigate(`/dashboard/resources/${subjectId}`)}
+            onClick={() => navigate(`/dashboard/resources`)}
             className="!text-slate-600 dark:!text-slate-400 !mb-2"
           >
             Sinflar ro'yxatiga qaytish
           </Button>
           <Title level={2} className="!mb-2 text-slate-900 dark:text-white">
-            "{currentSubject.name}" fani uchun "{currentClass.name}" manbalari
+            Biologiya fani uchun "{currentClass.name}" manbalari
           </Title>
           <Text className="text-slate-600 dark:text-slate-400">
             Bu sinfga biriktirilgan resurslarni boshqaring
@@ -564,7 +541,7 @@ export default function ResourcesClassDetail() {
             label="Resurs nomi"
             rules={[{ required: true, message: 'Resurs nomini kiriting' }]}
           >
-            <Input placeholder="Masalan: Algebra bo'yicha qo'llanma" />
+            <Input placeholder="Masalan: Zambrug'lar turlari" />
           </Form.Item>
 
           <Form.Item
@@ -649,7 +626,7 @@ export default function ResourcesClassDetail() {
             <Select mode="multiple" placeholder="Savollarni tanlang" allowClear>
               {mockQuestions.map((q) => (
                 <Option key={q.id} value={q.id}>
-                  {q.text} ({getSubjectName(q.subjectId)})
+                  {q.text} Biologiya
                 </Option>
               ))}
             </Select>

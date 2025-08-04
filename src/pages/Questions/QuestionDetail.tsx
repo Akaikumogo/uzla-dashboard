@@ -91,20 +91,7 @@ const mockClasses = [
 
 const mockQuestions: QuestionDto[] = [
   {
-    id: 'q-001',
-    subjectId: '1',
-    grade: 10,
-    level: 5,
-    resourceIds: ['res-001'],
-    questionText:
-      "Pifagor teoremasini ta'riflang va misol keltiring. Bu teorema to'g'ri burchakli uchburchaklarda qanday qo'llaniladi?",
-    type: 'text',
-    status: 'active',
-    createdBy: 'teacher1',
-    createdAt: '2024-07-20'
-  },
-  {
-    id: 'q-002',
+    id: 'q-005',
     subjectId: '4',
     grade: 11,
     level: 3,

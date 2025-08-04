@@ -17,7 +17,7 @@ const Questions = lazy(() => import('./pages/Questions/Questions'));
 const QuestionsDetail = lazy(() => import('./pages/Questions/QuestionDetail'));
 const ClassDetail = lazy(() => import('./pages/Classes/ClassDetail'));
 const Resource = lazy(() => import('./pages/Resources/Resource'));
-const ResourceSubjectid = lazy(() => import('./pages/Resources/ResourceClass'));
+
 const ResourceSubjectidDetail = lazy(
   () => import('./pages/Resources/ResourceClassDetail')
 );
@@ -64,12 +64,9 @@ export const routes: RouteObject[] = [
             path: 'resources',
             element: withSuspense(Resource)
           },
+
           {
-            path: 'resources/:subjectId',
-            element: withSuspense(ResourceSubjectid)
-          },
-          {
-            path: 'resources/:subjectId/:classId',
+            path: 'resources/:classId',
             element: withSuspense(ResourceSubjectidDetail)
           },
           {

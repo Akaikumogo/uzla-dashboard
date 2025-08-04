@@ -4,19 +4,19 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft,
-  GraduationCap,
-  Users,
-  BookOpen,
-  User,
-  Calendar,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Plus,
-  Edit,
-  Trash2
-} from 'lucide-react';
+  ArrowLeftOutlined,
+  ExperimentOutlined,
+  TeamOutlined,
+  BookOutlined,
+  UserOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  ClockCircleOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  BugOutlined
+} from '@ant-design/icons';
 import {
   Row,
   Col,
@@ -41,57 +41,51 @@ import NotFoundPage from '../NotFounds/NotFoundPage';
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-// Mock data (real ilovada bu ma'lumotlar API'dan keladi)
-// Class data type
-export type ClassDto = {
+// Biology Class data type - now with single subject
+export type BiologyClassDto = {
   id: string;
   name: string;
   grade: number;
   description?: string;
-  subjects: string[];
+  subject: string; // Single biology subject
+  subjectName: string; // Biology subject name
   teacher: string;
   studentsCount: number;
   maxStudents: number;
   status: 'active' | 'inactive';
   createdDate: string;
   schedule?: string;
-  subjectMastery: Record<string, number>; // Fanlar bo'yicha o'zlashtirish darajasi (subjectId: percentage)
+  subjectMastery: number; // Single mastery percentage for biology
+  biologyTopics: BiologyTopic[]; // Biology-specific topics
 };
 
-// Mock subjects data
-const mockSubjects = [
-  { id: '1', name: 'Matematika' },
-  { id: '2', name: 'Fizika' },
-  { id: '3', name: 'Kimyo' },
-  { id: '4', name: 'Biologiya' },
-  { id: '5', name: 'Tarix' },
-  { id: '6', name: 'Geografiya' },
-  { id: '7', name: 'Adabiyot' }
-];
+// Biology topics type
+export type BiologyTopic = {
+  id: string;
+  name: string;
+  masteryLevel: number;
+  questionsCount: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+};
 
-// Mock teachers data
-const mockTeachers = [
-  { id: '1', name: 'Ahmadjon Karimov' },
-  { id: '2', name: 'Malika Tosheva' },
-  { id: '3', name: 'Bobur Alimov' },
-  { id: '4', name: 'Nilufar Rahimova' },
-  { id: '5', name: 'Jasur Nazarov' }
-];
+// Mock biology teachers data
 
-// Mock students data (sinfga tegishli o'quvchilar)
-export type StudentDto = {
+// Mock students data for biology classes
+export type BiologyStudentDto = {
   id: string;
   fullName: string;
   email: string;
   phone: string;
-  password?: string; // Parol maydoni qo'shildi
+  password?: string;
   classId: string;
   attendancePercentage: number;
   averageScore: number;
   status: 'active' | 'inactive';
+  strongTopics: string[]; // Biology topics student is strong in
+  weakTopics: string[]; // Biology topics student needs help with
 };
 
-const mockStudents: StudentDto[] = [
+const mockBiologyStudents: BiologyStudentDto[] = [
   {
     id: 'student-001',
     fullName: 'Ali Valiyev',
@@ -100,7 +94,9 @@ const mockStudents: StudentDto[] = [
     classId: 'class-001',
     attendancePercentage: 95,
     averageScore: 88,
-    status: 'active'
+    status: 'active',
+    strongTopics: ['Hujayra biologiyasi', 'Genetika'],
+    weakTopics: ['Biokimyo']
   },
   {
     id: 'student-002',
@@ -110,7 +106,9 @@ const mockStudents: StudentDto[] = [
     classId: 'class-001',
     attendancePercentage: 92,
     averageScore: 91,
-    status: 'active'
+    status: 'active',
+    strongTopics: ['Genetika', 'Evolyutsiya'],
+    weakTopics: ['Anatomiya']
   },
   {
     id: 'student-003',
@@ -120,7 +118,9 @@ const mockStudents: StudentDto[] = [
     classId: 'class-001',
     attendancePercentage: 80,
     averageScore: 75,
-    status: 'inactive'
+    status: 'inactive',
+    strongTopics: ['Ekologiya'],
+    weakTopics: ['Genetika', 'Biokimyo']
   },
   {
     id: 'student-004',
@@ -130,7 +130,9 @@ const mockStudents: StudentDto[] = [
     classId: 'class-002',
     attendancePercentage: 98,
     averageScore: 94,
-    status: 'active'
+    status: 'active',
+    strongTopics: ['Anatomiya', 'Fiziologiya'],
+    weakTopics: ['Molekulyar biologiya']
   },
   {
     id: 'student-005',
@@ -140,7 +142,9 @@ const mockStudents: StudentDto[] = [
     classId: 'class-002',
     attendancePercentage: 85,
     averageScore: 79,
-    status: 'active'
+    status: 'active',
+    strongTopics: ['Botanika'],
+    weakTopics: ['Genetika']
   },
   {
     id: 'student-006',
@@ -150,156 +154,166 @@ const mockStudents: StudentDto[] = [
     classId: 'class-003',
     attendancePercentage: 90,
     averageScore: 85,
-    status: 'active'
+    status: 'active',
+    strongTopics: ['Ekologiya', 'Evolyutsiya'],
+    weakTopics: ['Biokimyo']
   }
 ];
 
-// Mock questions data with levels
-export type QuestionDto = {
+// Biology questions data
+export type BiologyQuestionDto = {
   id: string;
   text: string;
-  subjectId: string;
+  topic: string;
   level: 'easy' | 'medium' | 'hard';
 };
 
-const mockQuestions: QuestionDto[] = [
-  { id: 'q1', text: 'Pifagor teoremasi', subjectId: '1', level: 'easy' },
-  { id: 'q2', text: 'Kvadrat tenglamalar', subjectId: '1', level: 'medium' },
-  { id: 'q3', text: 'Integral hisob', subjectId: '1', level: 'hard' },
-  { id: 'q4', text: 'Nyuton qonunlari', subjectId: '2', level: 'easy' },
-  { id: 'q5', text: 'Termodinamika asoslari', subjectId: '2', level: 'medium' },
-  { id: 'q6', text: 'Kvant fizikasi', subjectId: '2', level: 'hard' },
-  { id: 'q7', text: 'Kimyoviy elementlar', subjectId: '3', level: 'easy' },
-  { id: 'q8', text: 'Organik birikmalar', subjectId: '3', level: 'medium' },
-  { id: 'q9', text: 'Reaksiya kinetikasi', subjectId: '3', level: 'hard' },
-  { id: 'q10', text: 'Hujayra tuzilishi', subjectId: '4', level: 'easy' },
-  { id: 'q11', text: 'Genetika asoslari', subjectId: '4', level: 'medium' },
-  { id: 'q12', text: 'Evolyutsiya nazariyasi', subjectId: '4', level: 'hard' }
-];
-
-const generateMockClasses = (): ClassDto[] => [
+const generateMockBiologyClasses = (): BiologyClassDto[] => [
   {
     id: 'class-001',
-    name: '10-A sinf',
+    name: '10-A Biologiya sinfi',
     grade: 10,
-    description: "Matematika yo'nalishi bo'yicha ixtisoslashgan sinf",
-    subjects: ['1', '2', '3'],
+    description: "Umumiy biologiya va hujayra biologiyasi yo'nalishi",
+    subject: 'biology',
+    subjectName: 'Biologiya',
     teacher: '1',
     studentsCount: 28,
     maxStudents: 30,
     status: 'active',
     createdDate: '2023-09-01',
     schedule: 'Dushanba, Chorshanba, Juma',
-    subjectMastery: { '1': 85, '2': 70, '3': 60 } // Matematika: 85%, Fizika: 70%, Kimyo: 60%
+    subjectMastery: 85,
+    biologyTopics: [
+      {
+        id: 'cell-bio',
+        name: 'Hujayra biologiyasi',
+        masteryLevel: 90,
+        questionsCount: 15,
+        difficulty: 'medium'
+      },
+      {
+        id: 'genetics',
+        name: 'Genetika',
+        masteryLevel: 80,
+        questionsCount: 12,
+        difficulty: 'hard'
+      },
+      {
+        id: 'ecology',
+        name: 'Ekologiya',
+        masteryLevel: 85,
+        questionsCount: 10,
+        difficulty: 'easy'
+      }
+    ]
   },
   {
     id: 'class-002',
-    name: '10-B sinf',
-    grade: 10,
-    description: "Biologiya yo'nalishi bo'yicha ixtisoslashgan sinf",
-    subjects: ['3', '4'],
+    name: '11-B Biologiya sinfi',
+    grade: 11,
+    description: "Molekulyar biologiya va genetika yo'nalishi",
+    subject: 'biology',
+    subjectName: 'Biologiya',
     teacher: '2',
     studentsCount: 25,
     maxStudents: 30,
     status: 'active',
     createdDate: '2023-09-01',
     schedule: 'Seshanba, Payshanba, Shanba',
-    subjectMastery: { '3': 75, '4': 90 } // Kimyo: 75%, Biologiya: 90%
+    subjectMastery: 92,
+    biologyTopics: [
+      {
+        id: 'mol-bio',
+        name: 'Molekulyar biologiya',
+        masteryLevel: 95,
+        questionsCount: 18,
+        difficulty: 'hard'
+      },
+      {
+        id: 'genetics',
+        name: 'Genetika',
+        masteryLevel: 88,
+        questionsCount: 20,
+        difficulty: 'hard'
+      },
+      {
+        id: 'biochem',
+        name: 'Biokimyo',
+        masteryLevel: 85,
+        questionsCount: 14,
+        difficulty: 'hard'
+      }
+    ]
   },
   {
     id: 'class-003',
-    name: '11-A sinf',
-    grade: 11,
-    description: "Fizika-matematika yo'nalishi",
-    subjects: ['1', '2'],
+    name: '9-A Biologiya sinfi',
+    grade: 9,
+    description: "Umumiy biologiya va tabiat o'rganish",
+    subject: 'biology',
+    subjectName: 'Biologiya',
     teacher: '3',
     studentsCount: 22,
     maxStudents: 25,
     status: 'active',
     createdDate: '2023-09-01',
     schedule: 'Dushanba, Seshanba, Juma',
-    subjectMastery: { '1': 78, '2': 82 } // Matematika: 78%, Fizika: 82%
-  },
-  {
-    id: 'class-004',
-    name: '9-A sinf',
-    grade: 9,
-    description: "Umumiy ta'lim sinfi",
-    subjects: ['1', '2', '3', '4', '5'],
-    teacher: '4',
-    studentsCount: 30,
-    maxStudents: 32,
-    status: 'active',
-    createdDate: '2023-09-01',
-    schedule: 'Har kuni',
-    subjectMastery: { '1': 70, '2': 65, '3': 72, '4': 80, '5': 75 }
-  },
-  {
-    id: 'class-005',
-    name: '8-B sinf',
-    grade: 8,
-    description: "Gumanitar yo'nalish sinfi",
-    subjects: ['5', '6', '7'],
-    teacher: '5',
-    studentsCount: 18,
-    maxStudents: 30,
-    status: 'inactive',
-    createdDate: '2023-09-01',
-    schedule: 'Dushanba, Chorshanba, Payshanba',
-    subjectMastery: { '5': 68, '6': 70, '7': 65 }
+    subjectMastery: 78,
+    biologyTopics: [
+      {
+        id: 'basic-bio',
+        name: 'Umumiy biologiya',
+        masteryLevel: 82,
+        questionsCount: 12,
+        difficulty: 'easy'
+      },
+      {
+        id: 'botany',
+        name: 'Botanika',
+        masteryLevel: 75,
+        questionsCount: 10,
+        difficulty: 'easy'
+      },
+      {
+        id: 'zoology',
+        name: 'Zoologiya',
+        masteryLevel: 80,
+        questionsCount: 8,
+        difficulty: 'medium'
+      }
+    ]
   }
 ];
 
-export default function ClassDetailPage() {
+export default function BiologyClassDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [classData, setClassData] = useState<ClassDto | null>(null);
-  const [classStudents, setClassStudents] = useState<StudentDto[]>([]);
+  const [classData, setClassData] = useState<BiologyClassDto | null>(null);
+  const [classStudents, setClassStudents] = useState<BiologyStudentDto[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [isStudentModalVisible, setIsStudentModalVisible] = useState(false);
-  const [editingStudent, setEditingStudent] = useState<StudentDto | null>(null);
+  const [editingStudent, setEditingStudent] =
+    useState<BiologyStudentDto | null>(null);
   const [studentForm] = Form.useForm();
 
   useEffect(() => {
     setLoading(true);
     // Simulate fetching data
-    const foundClass = generateMockClasses().find((c) => c.id === id);
+    const foundClass = generateMockBiologyClasses().find((c) => c.id === id);
     if (foundClass) {
       setClassData(foundClass);
-      const studentsInClass = mockStudents.filter((s) => s.classId === id);
+      const studentsInClass = mockBiologyStudents.filter(
+        (s) => s.classId === id
+      );
       setClassStudents(studentsInClass);
     } else {
-      message.error('Sinf topilmadi!');
-      navigate('/dashboard/classes'); // Or navigate to a 404 page
+      message.error('Biologiya sinfi topilmadi!');
+      navigate('/dashboard/classes');
     }
     setLoading(false);
   }, [id, navigate]);
 
-  // Get subject name by ID
-  const getSubjectName = (subjectId: string) => {
-    const subject = mockSubjects.find((s) => s.id === subjectId);
-    return subject ? subject.name : 'Unknown';
-  };
-
-  // Get teacher name by ID
-  const getTeacherName = (teacherId: string) => {
-    const teacher = mockTeachers.find((t) => t.id === teacherId);
-    return teacher ? teacher.name : 'Unknown';
-  };
-
-  // Get question counts by level for a given subject
-  const getSubjectQuestionStats = (subjectId: string) => {
-    const questions = mockQuestions.filter((q) => q.subjectId === subjectId);
-    const stats = {
-      easy: questions.filter((q) => q.level === 'easy').length,
-      medium: questions.filter((q) => q.level === 'medium').length,
-      hard: questions.filter((q) => q.level === 'hard').length,
-      total: questions.length
-    };
-    return stats;
-  };
-
+  // Get biology teacher name by ID
   // Handle create new student
   const handleCreateStudent = () => {
     setEditingStudent(null);
@@ -308,7 +322,7 @@ export default function ClassDetailPage() {
   };
 
   // Handle edit student
-  const handleEditStudent = (student: StudentDto) => {
+  const handleEditStudent = (student: BiologyStudentDto) => {
     setEditingStudent(student);
     setIsStudentModalVisible(true);
     studentForm.setFieldsValue({
@@ -330,12 +344,10 @@ export default function ClassDetailPage() {
     if (editingStudent) {
       // Update existing student
       const updatedData: any = { ...values };
-      // Only include password if it was provided
       if (!values.password) {
         delete updatedData.password;
         delete updatedData.confirmPassword;
       }
-
       setClassStudents(
         classStudents.map((student) =>
           student.id === editingStudent.id
@@ -346,7 +358,7 @@ export default function ClassDetailPage() {
       message.success("O'quvchi muvaffaqiyatli yangilandi");
     } else {
       // Create new student
-      const newStudent: StudentDto = {
+      const newStudent: BiologyStudentDto = {
         id: Date.now().toString(),
         fullName: values.fullName,
         email: values.email,
@@ -354,12 +366,13 @@ export default function ClassDetailPage() {
         classId: id!,
         attendancePercentage: 0,
         averageScore: 0,
-        status: values.status
+        status: values.status,
+        strongTopics: [],
+        weakTopics: []
       };
       setClassStudents([...classStudents, newStudent]);
       message.success("Yangi o'quvchi muvaffaqiyatli qo'shildi");
     }
-
     setIsStudentModalVisible(false);
     studentForm.resetFields();
     setEditingStudent(null);
@@ -374,10 +387,10 @@ export default function ClassDetailPage() {
   }
 
   if (!classData) {
-    return <NotFoundPage />; // Should navigate away if not found
+    return <NotFoundPage />;
   }
 
-  // Calculate statistics for the class
+  // Calculate statistics for the biology class
   const activeStudents = classStudents.filter(
     (s) => s.status === 'active'
   ).length;
@@ -402,13 +415,13 @@ export default function ClassDetailPage() {
     (classData.studentsCount / classData.maxStudents) * 100
   );
 
-  const studentColumns: ColumnsType<StudentDto> = [
+  const studentColumns: ColumnsType<BiologyStudentDto> = [
     {
       title: "O'quvchi",
       key: 'fullName',
-      render: (record: StudentDto) => (
+      render: (record: BiologyStudentDto) => (
         <div className="flex items-center gap-2">
-          <User size={16} className="text-slate-400" />
+          <UserOutlined className="text-slate-400" />
           <div>
             <div className="font-medium text-slate-900 dark:text-white">
               {record.fullName}
@@ -438,13 +451,30 @@ export default function ClassDetailPage() {
       )
     },
     {
-      title: "O'rtacha ball",
+      title: 'Biologiya balli',
       dataIndex: 'averageScore',
       key: 'averageScore',
       render: (score: number) => (
         <Tag color={score >= 80 ? 'green' : score >= 60 ? 'orange' : 'red'}>
           {score}
         </Tag>
+      )
+    },
+    {
+      title: 'Kuchli mavzular',
+      dataIndex: 'strongTopics',
+      key: 'strongTopics',
+      render: (topics: string[]) => (
+        <div className="flex flex-wrap gap-1">
+          {topics.slice(0, 2).map((topic, index) => (
+            <Tag key={index} color="green" className="text-xs">
+              {topic}
+            </Tag>
+          ))}
+          {topics.length > 2 && (
+            <Tag className="text-xs">+{topics.length - 2}</Tag>
+          )}
+        </div>
       )
     },
     {
@@ -460,12 +490,12 @@ export default function ClassDetailPage() {
     {
       title: 'Amallar',
       key: 'actions',
-      render: (record: StudentDto) => (
+      render: (record: BiologyStudentDto) => (
         <div className="flex gap-2">
           <Tooltip title="Tahrirlash">
             <Button
               type="text"
-              icon={<Edit size={16} />}
+              icon={<EditOutlined />}
               onClick={() => handleEditStudent(record)}
               className="text-blue-600 hover:text-blue-800"
             />
@@ -480,7 +510,7 @@ export default function ClassDetailPage() {
             <Tooltip title="O'chirish">
               <Button
                 type="text"
-                icon={<Trash2 size={16} />}
+                icon={<DeleteOutlined />}
                 className="text-red-600 hover:text-red-800"
               />
             </Tooltip>
@@ -497,13 +527,14 @@ export default function ClassDetailPage() {
         <div>
           <Button
             type="text"
-            icon={<ArrowLeft size={20} />}
+            icon={<ArrowLeftOutlined />}
             onClick={() => navigate('/dashboard/classes')}
             className="!text-slate-600 dark:!text-slate-400 !mb-2"
           >
             Sinflar ro'yxatiga qaytish
           </Button>
           <Title level={2} className="!mb-2 text-slate-900 dark:text-white">
+            <BugOutlined className="mr-2 text-green-600" />
             {classData.name} ({classData.grade}-sinf)
           </Title>
           <Text className="text-slate-600 dark:text-slate-400">
@@ -519,7 +550,7 @@ export default function ClassDetailPage() {
             <Statistic
               title={<span className="text-white">Jami O'quvchilar</span>}
               value={classData.studentsCount}
-              prefix={<Users className="text-white" />}
+              prefix={<TeamOutlined className="text-white" />}
               valueStyle={{
                 fontSize: '2rem',
                 fontWeight: 'bold',
@@ -533,7 +564,7 @@ export default function ClassDetailPage() {
             <Statistic
               title={<span className="text-white">Faol O'quvchilar</span>}
               value={activeStudents}
-              prefix={<CheckCircle className="text-white" />}
+              prefix={<CheckCircleOutlined className="text-white" />}
               valueStyle={{
                 fontSize: '2rem',
                 fontWeight: 'bold',
@@ -547,7 +578,7 @@ export default function ClassDetailPage() {
             <Statistic
               title={<span className="text-white">Nofaol O'quvchilar</span>}
               value={inactiveStudents}
-              prefix={<XCircle className="text-white" />}
+              prefix={<CloseCircleOutlined className="text-white" />}
               valueStyle={{
                 fontSize: '2rem',
                 fontWeight: 'bold',
@@ -562,7 +593,7 @@ export default function ClassDetailPage() {
               title={<span className="text-white">O'rtacha Davomat</span>}
               value={avgAttendance}
               suffix="%"
-              prefix={<Clock className="text-white" />}
+              prefix={<ClockCircleOutlined className="text-white" />}
               valueStyle={{
                 fontSize: '2rem',
                 fontWeight: 'bold',
@@ -574,9 +605,11 @@ export default function ClassDetailPage() {
         <Col xs={24} sm={8} lg={4}>
           <div className="bg-gradient-to-br p-4 rounded-lg from-orange-400 to-orange-600 border-0">
             <Statistic
-              title={<span className="text-white">O'rtacha Ball</span>}
+              title={
+                <span className="text-white">Biologiya O'rtacha Ball</span>
+              }
               value={avgScore}
-              prefix={<BookOpen className="text-white" />}
+              prefix={<BookOutlined className="text-white" />}
               valueStyle={{
                 fontSize: '2rem',
                 fontWeight: 'bold',
@@ -586,12 +619,12 @@ export default function ClassDetailPage() {
           </div>
         </Col>
         <Col xs={24} sm={8} lg={4}>
-          <div className="bg-gradient-to-br p-4 rounded-lg from-[#6bd281] to-[#5bc270] border-0">
+          <div className="bg-gradient-to-br p-4 rounded-lg from-[#52c41a] to-[#389e0d] border-0">
             <Statistic
               title={<span className="text-white">To'ldirilganlik</span>}
               value={fillPercentage}
               suffix="%"
-              prefix={<GraduationCap className="text-white" />}
+              prefix={<ExperimentOutlined className="text-white" />}
               valueStyle={{
                 fontSize: '2rem',
                 fontWeight: 'bold',
@@ -602,195 +635,19 @@ export default function ClassDetailPage() {
         </Col>
       </Row>
 
-      <Row gutter={[24, 24]}>
-        {/* Class Info Card */}
-        <Col xs={24} lg={12}>
-          <Card
-            className="bg-white dark:bg-[#101010] border-slate-200 dark:border-slate-800"
-            title={
-              <Title level={4} className="!mb-0 text-slate-900 dark:text-white">
-                Sinf haqida ma'lumot
-              </Title>
-            }
-          >
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <User size={20} className="text-slate-500" />
-                <div>
-                  <Text strong className="text-slate-900 dark:text-white">
-                    Sinf rahbari:
-                  </Text>{' '}
-                  <Text className="text-slate-600 dark:text-slate-400">
-                    {getTeacherName(classData.teacher)}
-                  </Text>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Calendar size={20} className="text-slate-500" />
-                <div>
-                  <Text strong className="text-slate-900 dark:text-white">
-                    Dars jadvali:
-                  </Text>{' '}
-                  <Text className="text-slate-600 dark:text-slate-400">
-                    {classData.schedule || 'Belgilanmagan'}
-                  </Text>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Users size={20} className="text-slate-500" />
-                <div>
-                  <Text strong className="text-slate-900 dark:text-white">
-                    O'quvchilar sig'imi:
-                  </Text>{' '}
-                  <Text className="text-slate-600 dark:text-slate-400">
-                    {classData.studentsCount} / {classData.maxStudents}
-                  </Text>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <GraduationCap size={20} className="text-slate-500" />
-                <div>
-                  <Text strong className="text-slate-900 dark:text-white">
-                    Holat:
-                  </Text>{' '}
-                  <Tag color={classData.status === 'active' ? 'green' : 'red'}>
-                    {classData.status === 'active' ? 'Faol' : 'Nofaol'}
-                  </Tag>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock size={20} className="text-slate-500" />
-                <div>
-                  <Text strong className="text-slate-900 dark:text-white">
-                    Yaratilgan sana:
-                  </Text>{' '}
-                  <Text className="text-slate-600 dark:text-slate-400">
-                    {classData.createdDate}
-                  </Text>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </Col>
-
-        {/* Subject Mastery Card */}
-        <Col xs={24} lg={12}>
-          <Card
-            className="bg-white dark:bg-[#101010] border-slate-200 dark:border-slate-800"
-            title={
-              <Title level={4} className="!mb-0 text-slate-900 dark:text-white">
-                Fanlar bo'yicha o'zlashtirish darajasi
-              </Title>
-            }
-          >
-            <div className="space-y-4">
-              {classData.subjects.length > 0 ? (
-                classData.subjects.map((subjectId) => (
-                  <div key={subjectId}>
-                    <div className="flex justify-between items-center mb-1">
-                      <Text className="text-slate-700 dark:text-slate-300">
-                        {getSubjectName(subjectId)}
-                      </Text>
-                      <Text strong className="text-slate-900 dark:text-white">
-                        {classData.subjectMastery[subjectId] || 0}%
-                      </Text>
-                    </div>
-                    <Progress
-                      percent={classData.subjectMastery[subjectId] || 0}
-                      status={
-                        (classData.subjectMastery[subjectId] || 0) >= 70
-                          ? 'success'
-                          : (classData.subjectMastery[subjectId] || 0) >= 40
-                          ? 'normal'
-                          : 'exception'
-                      }
-                      strokeColor={{
-                        '0%': '#f59e0b', // orange
-                        '50%': '#6bd281', // green
-                        '100%': '#10b981' // darker green
-                      }}
-                      showInfo={false}
-                    />
-                  </div>
-                ))
-              ) : (
-                <Text className="text-slate-600 dark:text-slate-400">
-                  Fanlar biriktirilmagan.
-                </Text>
-              )}
-            </div>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Questions by Subject Card */}
-      <Card
-        className="bg-white dark:bg-[#101010] border-slate-200 dark:border-slate-800"
-        title={
-          <Title level={4} className="!mb-0 text-slate-900 dark:text-white">
-            Fanlar bo'yicha savollar statistikasi
-          </Title>
-        }
-      >
-        <Row gutter={[16, 16]}>
-          {classData.subjects.length > 0 ? (
-            classData.subjects.map((subjectId) => {
-              const stats = getSubjectQuestionStats(subjectId);
-              return (
-                <Col xs={24} sm={12} md={8} key={subjectId}>
-                  <Card
-                    size="small"
-                    className="bg-slate-50 dark:bg-[#000000] border-slate-200 dark:border-slate-700"
-                  >
-                    <Title
-                      level={5}
-                      className="!mb-2 text-slate-900 dark:text-white"
-                    >
-                      {getSubjectName(subjectId)} ({stats.total} ta savol)
-                    </Title>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
-                        <span>Oson:</span>
-                        <Tag color="green">{stats.easy}</Tag>
-                      </div>
-                      <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
-                        <span>O'rta:</span>
-                        <Tag color="orange">{stats.medium}</Tag>
-                      </div>
-                      <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
-                        <span>Qiyin:</span>
-                        <Tag color="red">{stats.hard}</Tag>
-                      </div>
-                    </div>
-                    <Text className="text-xs text-slate-500 mt-2 block">
-                      *Darajalar o'qituvchilar tomonidan kiritiladi.
-                    </Text>
-                  </Card>
-                </Col>
-              );
-            })
-          ) : (
-            <Col span={24}>
-              <Text className="text-slate-600 dark:text-slate-400">
-                Bu sinfga fanlar biriktirilmagan.
-              </Text>
-            </Col>
-          )}
-        </Row>
-      </Card>
-
-      {/* Students Table */}
+      {/* Biology Students Table */}
       <Card
         className="bg-white dark:bg-[#101010] border-slate-200 dark:border-slate-800"
         title={
           <div className="flex items-center justify-between">
             <Title level={4} className="!mb-0 text-slate-900 dark:text-white">
-              Sinf o'quvchilari ({classStudents.length} ta)
+              <TeamOutlined className="mr-2 text-green-600" />
+              Biologiya sinfi o'quvchilari ({classStudents.length} ta)
             </Title>
             <Button
               type="primary"
               size="middle"
-              icon={<Plus />}
+              icon={<PlusOutlined />}
               onClick={handleCreateStudent}
               className="bg-green-500 hover:bg-green-600 border-green-100"
             >
@@ -810,7 +667,7 @@ export default function ClassDetailPage() {
           />
         ) : (
           <Text className="text-slate-600 dark:text-slate-400">
-            Bu sinfda o'quvchilar mavjud emas.
+            Bu biologiya sinfida o'quvchilar mavjud emas.
           </Text>
         )}
       </Card>
@@ -818,7 +675,9 @@ export default function ClassDetailPage() {
       {/* Add/Edit Student Modal */}
       <Modal
         title={
-          editingStudent ? "O'quvchini tahrirlash" : "Yangi o'quvchi qo'shish"
+          editingStudent
+            ? "Biologiya o'quvchisini tahrirlash"
+            : "Yangi biologiya o'quvchisi qo'shish"
         }
         open={isStudentModalVisible}
         onCancel={() => {
@@ -830,7 +689,7 @@ export default function ClassDetailPage() {
         okText="Saqlash"
         cancelText="Bekor qilish"
         okButtonProps={{
-          style: { backgroundColor: '#6bd281', border: 'none' }
+          style: { backgroundColor: '#52c41a', border: 'none' }
         }}
         width={700}
       >
@@ -859,7 +718,6 @@ export default function ClassDetailPage() {
               </Form.Item>
             </Col>
           </Row>
-
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -893,7 +751,6 @@ export default function ClassDetailPage() {
             >
               {editingStudent ? "Parolni o'zgartirish (ixtiyoriy)" : 'Parol'}
             </Title>
-
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
